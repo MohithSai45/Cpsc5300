@@ -1,8 +1,8 @@
 /**
  * @file SQLExec.cpp - implementation of SQLExec class
  * 
- * @authors Bobby Brown rbrown3 and Mohith Sairam K V
- * @date        Created 2/06/2023
+ * @authors Bobby Brown and Mohith Sairam K V
+ * @date        Created 2/18/2023
  * @version     Milestone 4
  * @see "Seattle University, CPSC5300, Winter 2023"
  */
@@ -288,8 +288,33 @@ QueryResult *SQLExec::show_columns(const ShowStatement *statement)
     return new QueryResult(names, attributes, rows, "successfully returned " + to_string(rows->size()) + " rows");
 }
 
-QueryResult *SQLExec::show_index(const ShowStatement *statement) {
-     return new QueryResult("show index not implemented"); // FIXME
+QueryResult *SQLExec::show_index(const ShowStatement *statement) { // Set up labels/header
+    ColumnNames *colNames = new ColumnNames();
+    colNames->push_back("table_name");
+    colNames->push_back("index_name");
+    colNames->push_back("seq_in_index");
+    colNames->push_back("column_name");
+    colNames->push_back("index_type");
+    colNames->push_back("is_unique");
+    ColumnAttributes *colAttr = new ColumnAttributes();
+    colAttr->push_back(ColumnAttribute(ColumnAttribute::TEXT));
+
+    // Identify index to show
+    Identifier tableName = statement->tableName;
+    ValueDict where;
+    where["table_name"] = Value(tableName);
+
+    // Get rows related to this index from indices schema
+    Handles* handles = SQLExec::indices->select(&where);
+    unsigned int size = handles->size();
+    ValueDicts *rows = new ValueDicts;
+    for (auto const &hd : *handles) {
+        ValueDict *row = SQLExec::indices->project(hd, colNames);
+        rows->push_back(row);
+    }
+    delete handles;
+    return new QueryResult(colNames, colAttr, rows,
+            "successfully returned " + to_string(size) + " rows");
 }
 
 QueryResult *SQLExec::drop_index(const DropStatement *statement) {
