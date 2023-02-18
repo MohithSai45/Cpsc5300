@@ -1,6 +1,6 @@
 /**
  * @file sql5300.cpp - SQL Shell, Schema Storage
- * @authors Bobby Brown, Milestone 3
+ * @authors Bobby Brown & Mohith Sairam K V, Milestone 3
  *          Justin Thoreson & Mason Adsero, Milestone 1 & 2
  * @version Milestone 3
  * @see "Seattle University, CPSC5600, Winter 2023"
