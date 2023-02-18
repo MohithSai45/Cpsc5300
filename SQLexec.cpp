@@ -318,5 +318,26 @@ QueryResult *SQLExec::show_index(const ShowStatement *statement) { // Set up lab
 }
 
 QueryResult *SQLExec::drop_index(const DropStatement *statement) {
-    return new QueryResult("drop index not implemented");  // FIXME
+    //Double check if statement is valid DROP
+    if (statement->type != DropStatement::kIndex) {
+        return new QueryResult("Unrecognized DROP statement");
+    }
+
+    Identifier table_name = statement->name;
+    Identifier index_name = statement->indexName;
+    DbIndex& index = SQLExec::indices->get_index(table_name, index_name);
+    ValueDict where;
+    where["table_name"] = table_name;
+    where["index_name"] = index_name;
+
+    Handles* index_handles = SQLExec::indices->select(&where);
+    index.drop();
+
+    for (unsigned int i = 0; i < index_handles->size(); i++) {
+        SQLExec::indices->del(index_handles->at(i));
+    }
+
+    //clear up memory
+    delete index_handles;
+    return new QueryResult("dropped index " + index_name);
 }
